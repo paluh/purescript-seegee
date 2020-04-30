@@ -6,9 +6,19 @@ import Data.Foldable (foldMap)
 import Data.Int (fromStringAs, hexadecimal, toStringAs)
 import Data.Maybe (Maybe(..))
 import Data.String (codePointFromChar, fromCodePointArray, toCodePointArray, toLower)
+import Data.String (length) as String
 
 black ∷ Color
 black = fromRgb 0 0 0
+
+red ∷ Color
+red = fromRgb 255 0 0
+
+green ∷ Color
+green = fromRgb 0 255 0
+
+blue ∷ Color
+blue = fromRgb 0 0 255
 
 type Color =
   { r ∷ Int
@@ -19,19 +29,24 @@ type Color =
   , repr ∷ String
   }
 
+_zeroPad ∷ String → String
+_zeroPad n  = n # String.length >>> case _ of
+  1 → "0" <> n
+  _ → n
+
 fromRgb ∷ Int → Int → Int → Color
 fromRgb r g b =
   { r, g, b, a, repr }
   where
     a = 255
-    repr = toLower $ foldMap (toStringAs hexadecimal) [ r, g, b, a ]
+    repr = toLower $ foldMap (toStringAs hexadecimal >>> _zeroPad) [ r, g, b, a ]
 
 -- | We should drop rgba as it is handled by opacity in case of SVG
 fromRgba ∷ Int → Int → Int → Int → Color
 fromRgba r g b a =
   { r, g, b, a, repr }
   where
-    repr = toLower $ foldMap (toStringAs hexadecimal) [ r, g, b, a ]
+    repr = toLower $ foldMap (toStringAs hexadecimal >>> _zeroPad) [ r, g, b, a ]
 
 fromRepr ∷ String → Maybe Color
 fromRepr repr = case toCodePointArray repr of
